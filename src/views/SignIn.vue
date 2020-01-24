@@ -1,5 +1,5 @@
 <template>
-  <div id="sign-up">
+  <div id="sign-in">
     <div class="box-content">
       <h1 class="box-title">Welcome back</h1>
       <el-form ref="form" :model="formData" label-width="80px" size="medium">
@@ -44,9 +44,11 @@ export default class List extends Vue {
 </script>
 
 <style lang="stylus" scoped>
-#sign-up {
+#sign-in {
   width: 100%;
   height: 100%;
+  background: url("../assets/image/background.jpg") left top no-repeat
+  background-size: 100% 100% 
 }
 
 .box-content {

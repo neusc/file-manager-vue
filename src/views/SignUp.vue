@@ -51,6 +51,8 @@ export default class List extends Vue {
 #sign-up {
   width: 100%;
   height: 100%;
+  background: url("../assets/image/background.jpg") left top no-repeat
+  background-size: 100% 100% 
 }
 
 .box-content {
