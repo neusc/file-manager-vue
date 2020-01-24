@@ -1,18 +1,49 @@
 <template>
-  <div id="sign-in">
-    <div class="box-content">
-      <h1 class="box-title">Welcome back</h1>
-      <el-form ref="form" :model="formData" label-width="80px" size="medium">
-        <el-form-item label="username">
-          <el-input v-model="formData.name"></el-input>
-        </el-form-item>
-        <el-form-item label="password">
-          <el-input type="password" v-model="formData.password"></el-input>
-        </el-form-item>
-      </el-form>
-      <el-button @click="signUp">sign in</el-button>
-    </div>
-  </div>
+  <v-app id="inspire">
+    <v-content>
+      <v-container class="fill-height" fluid>
+        <v-row align="center" justify="center">
+          <v-col cols="12" sm="8" md="4">
+            <v-card class="elevation-12">
+              <v-toolbar color="primary" dark flat>
+                <v-toolbar-title>Welcome Back!</v-toolbar-title>
+                <v-spacer />
+              </v-toolbar>
+              <v-card-text>
+                <v-form>
+                  <v-text-field
+                    label="Login"
+                    name="login"
+                    prepend-icon="person"
+                    type="text"
+                    v-model="formData.name"
+                    clearable
+                    required
+                    :rules="[() => !!formData.name || 'This field is required']"
+                  />
+                  <v-text-field
+                    id="password"
+                    label="Password"
+                    name="password"
+                    v-model="formData.password"
+                    prepend-icon="lock"
+                    type="password"
+                    clearable
+                    required
+                    :rules="[() => !!formData.password || 'This field is required']"
+                  />
+                </v-form>
+              </v-card-text>
+              <v-card-actions>
+                <v-spacer />
+                <v-btn color="primary" @click="signIn">Login</v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-content>
+  </v-app>
 </template>
 
 <script lang="ts">
@@ -26,47 +57,18 @@ export default class List extends Vue {
     name: "",
     password: ""
   };
-  signUp() {
+  signIn() {
+    if (!this.formData.name || !this.formData.password) {
+      return;
+    }
     this.$axios.post(`${host}/api/user/signin`, this.formData).then(res => {
       if (res.data.statusCode === 0) {
-        
-      } else if(res.data.statusCode === 1){
-        this.$notify({
-          title: "tips",
-          message: res.data.msg
-        });
-      } else if(res.data.statusCode === 2) {
+      } else if (res.data.statusCode === 1) {
+        this.$toasted.error(res.data.msg);
+      } else if (res.data.statusCode === 2) {
         this.$router.push({ name: res.data.data });
       }
     });
   }
 }
 </script>
-
-<style lang="stylus" scoped>
-#sign-in {
-  width: 100%;
-  height: 100%;
-  background: url("../assets/image/background.jpg") left top no-repeat
-  background-size: 100% 100% 
-}
-
-.box-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 480px;
-  min-height: 356px;
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-
-  .box-title {
-    margin: 0 0 40px;
-    font-size: 32px;
-    font-weight: 700;
-    text-align: center;
-  }
-}
-</style>

@@ -1,67 +1,80 @@
 <template>
-  <div class="page-container md-layout-column">
-    <md-toolbar class="md-primary">
-      <md-button class="md-icon-button" @click="showNavigation = true">
-        <md-icon>menu</md-icon>
-      </md-button>
-      <span class="md-title">File Manager</span>
-      <div class="md-toolbar-section-end">
-        <md-menu md-direction="bottom-start">
-          <md-button md-menu-trigger>operations</md-button>
-          <md-menu-content>
-            <md-menu-item @click="showUpload = true">upload</md-menu-item>
-            <md-menu-item @click="showSelect = true">delete</md-menu-item>
-          </md-menu-content>
-        </md-menu>
-      </div>
-    </md-toolbar>
-    <md-table
-      v-model="tableData"
-      md-sort="size"
-      md-sort-order="asc"
-      md-fixed-header
-      @md-selected="onSelected"
-    >
-      <md-table-toolbar>
-        <h1 class="md-title">With auto select and alternate headers</h1>
-      </md-table-toolbar>
-      <md-table-toolbar slot="md-table-alternate-header" slot-scope="{ count }">
-        <div class="md-toolbar-section-start">{{ getAlternateLabel(count) }}</div>
-        <div class="md-toolbar-section-end">
-          <md-button class="md-icon-button" @click="deleteFile">
-            <md-icon>delete</md-icon>
-          </md-button>
-        </div>
-      </md-table-toolbar>
-      <md-table-row
-        slot="md-table-row"
-        slot-scope="{ item }"
-        md-selectable="multiple"
-        md-auto-select
+  <v-app id="inspire">
+    <v-navigation-drawer v-model="drawer" app clipped>
+      <v-list dense>
+        <v-list-item link>
+          <v-list-item-action>
+            <v-icon>mdi-view-dashboard</v-icon>
+          </v-list-item-action>
+          <v-list-item-content>
+            <v-list-item-title>Dashboard</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+        <v-list-item link>
+          <v-list-item-action>
+            <v-icon>mdi-settings</v-icon>
+          </v-list-item-action>
+          <v-list-item-content>
+            <v-list-item-title>Settings</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+      </v-list>
+    </v-navigation-drawer>
+
+    <v-app-bar app clipped-left>
+      <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
+      <v-toolbar-title>Application</v-toolbar-title>
+      <v-speed-dial
+        v-model="fab"
+        direction="bottom"
+        :open-on-hover="hover"
+        :transition="transition"
       >
-        <md-table-cell md-label="Name" md-sort-by="name">{{ item.name }}</md-table-cell>
-        <md-table-cell md-label="Size" md-sort-by="size">{{ item.size | formatSize }}</md-table-cell>
-        <md-table-cell md-label="Modify Time" md-sort-by="modTime">{{ item.modTime | formatTime }}</md-table-cell>
-      </md-table-row>
-    </md-table>
-    <md-drawer :md-active.sync="showNavigation" md-swipeable>
-      <md-toolbar class="md-transparent" md-elevation="0">
-        <span class="md-title">Hello World!</span>
-      </md-toolbar>
-      <md-list>
-        <md-list-item>
-          <md-icon>move_to_inbox</md-icon>
-          <span class="md-list-item-text">Inbox</span>
-        </md-list-item>
-      </md-list>
-    </md-drawer>
-    <Upload v-if="showUpload" @upload-finish="onUploadFinished" @close="showUpload = false" />
-  </div>
+        <template v-slot:activator>
+          <v-btn v-model="fab" color="blue darken-2" dark fab>
+            <v-icon v-if="fab">mdi-close</v-icon>
+            <v-icon v-else>mdi-account-circle</v-icon>
+          </v-btn>
+        </template>
+        <v-btn fab dark small color="indigo" @click="openUpload">
+          <v-icon>mdi-plus</v-icon>
+        </v-btn>
+        <v-btn fab dark small color="red" @click="openEditTool">
+          <v-icon>mdi-delete</v-icon>
+        </v-btn>
+      </v-speed-dial>
+    </v-app-bar>
+
+    <v-content>
+      <v-container class="fill-height" fluid>
+        <v-data-table
+          loading
+          loading-text="Loading... Please wait"
+          :headers="headers"
+          :items="fileList"
+          :items-per-page="10"
+          class="elevation-1"
+          :show-select="showSelect"
+          :single-select="singleSelect"
+          item-key="name"
+          v-model="selectedFiles"
+          @input="onSelected"
+        ></v-data-table>
+      </v-container>
+    </v-content>
+
+    <v-footer app>
+      <span>&copy; 2019</span>
+    </v-footer>
+    <Upload ref="upload" @upload-finish="onUploadFinished" />
+    <EditTool ref="tool" :count="selectedFiles.length" @delete="onDelete" @cancel="onSelectCancel" />
+  </v-app>
 </template>
 
 <script lang="ts">
-import { Vue, Component } from "vue-property-decorator";
-import Upload from "@/components/Upload.vue";
+import { Vue, Component, Prop } from "vue-property-decorator";
+import Upload from "@/components/upload.vue";
+import EditTool from "@/components/editTool.vue";
 import { timestampToDate } from "@/utils/timeFormat";
 import { host } from "@/config";
 
@@ -72,67 +85,75 @@ interface CustomFile {
   modTime: number;
 }
 
+interface FormatFile {
+  name: string;
+  path: string;
+  size: string;
+  modTime: string;
+}
+
 @Component({
-  filters: {
-    formatTime(time: number): string {
-      return timestampToDate(time);
-    },
-    formatSize(size: number): string {
-      const kSize = size / 1000;
-      let mSize = "";
-      if (kSize > 1000) {
-        mSize = (kSize / 1000).toFixed(1);
-        return `${mSize}M`;
-      } else {
-        return `${kSize.toFixed(1)}K`;
-      }
-    }
-  },
   components: {
-    Upload
+    Upload,
+    EditTool
   }
 })
 export default class List extends Vue {
-  tableData = [];
-  selectedFiles: CustomFile[] = [];
-  showNavigation = false;
+  @Prop() source!: string;
+  headers = [
+    {
+      text: "Name",
+      align: "left",
+      sortable: false,
+      value: "name"
+    },
+    { text: "Size", value: "size" },
+    { text: "Modified Time", value: "modTime" }
+  ];
+  fileList: FormatFile[] = [];
+  selectedFiles: FormatFile[] = [];
   showSelect = false;
   showUpload = false;
+  drawer = null;
+  singleSelect = false;
+
+  direction = "top";
+  hover = true;
+  transition = "slide-y-reverse-transition";
+  fab = false;
 
   mounted() {
     this.getFileList();
   }
 
-  onSelected(items: CustomFile[]) {
+  onSelected(items: FormatFile[]) {
     this.selectedFiles = items;
-    console.log("selected==>", items);
+  }
+
+  onSelectCancel() {
+    this.showSelect = false;
+    this.selectedFiles = [];
+  }
+
+  openUpload() {
+    //@ts-ignore
+    this.$refs.upload.open();
+  }
+
+  openEditTool() {
+    this.showSelect = true;
+    //@ts-ignore
+    this.$refs.tool.open();
   }
 
   onUploadFinished() {
     this.getFileList();
   }
 
-  getAlternateLabel(count: number): string {
-    let plural = "";
-    if (count > 1) {
-      plural = "s";
-    }
-    return `${count} file${plural} selected`;
-  }
-
-  deleteFile() {
-    let names = this.selectedFiles.map(file => file.name);
-    this.$axios.post(`${host}/api/file/delete`, { names }).then(res => {
-      if (res.data.statusCode === 0) {
-        this.getFileList();
-      }
-    });
-  }
-
   getFileList() {
     this.$axios.post(`${host}/api/file/list`).then(res => {
       if (res.data.statusCode === 0) {
-        this.tableData = res.data.data;
+        this.fileList = this.handleData(res.data.data);
       } else if (res.data.statusCode === 1) {
         this.$notify({
           title: "tips",
@@ -143,23 +164,61 @@ export default class List extends Vue {
       }
     });
   }
+
+  handleData(data: CustomFile[]): FormatFile[] {
+    return data.map((d: CustomFile) => {
+      return {
+        ...d,
+        size: this.formatSize(d.size),
+        modTime: this.formatTime(d.modTime)
+      };
+    });
+  }
+
+  onDelete() {
+    let names = this.selectedFiles.map(file => file.name);
+    this.$axios.post(`${host}/api/file/delete`, { names }).then(res => {
+      if (res.data.statusCode === 0) {
+        this.$toasted.success(
+          `${names.length +
+            " " +
+            (names.length > 1 ? "files" : "file")} delete success!`
+        );
+        this.getFileList();
+        this.onSelectCancel();
+        // @ts-ignore
+        this.$refs.tool.close();
+      }
+    });
+  }
+
+  formatTime(time: number): string {
+    return timestampToDate(time);
+  }
+  formatSize(size: number): string {
+    const kSize = size / 1000;
+    let mSize = "";
+    if (kSize > 1000) {
+      mSize = (kSize / 1000).toFixed(1);
+      return `${mSize}M`;
+    } else {
+      return `${kSize.toFixed(1)}K`;
+    }
+  }
 }
 </script>
 
 <style lang="stylus" scoped>
-.page-container {
-  height: 100%;
-  overflow: hidden;
-  position: relative;
-  border: 1px solid rgba(#000, 0.12);
+.container {
+  padding: 0;
 }
 
-.md-drawer {
-  width: 230px;
-  max-width: calc(100vw - 125px);
+.v-data-table {
+  width: 100%;
+  height: 100%;
 }
 
-.md-table {
-  height: 100%;
+.v-speed-dial {
+  margin-left: auto;
 }
 </style>

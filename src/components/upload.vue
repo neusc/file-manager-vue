@@ -1,15 +1,33 @@
 <template>
-  <md-dialog :md-active.sync="showDialog" @md-closed="onDialogClosed">
-    <md-dialog-title>Please select your files to upload~</md-dialog-title>
-    <md-field>
-      <label>Upload Files</label>
-      <md-file name="files" multiple @md-change="onFileSelected" />
-    </md-field>
-    <md-dialog-actions>
-      <md-button class="md-primary" @click="upload">Upload</md-button>
-      <md-button class="md-primary" @click="showDialog = false">Close</md-button>
-    </md-dialog-actions>
-  </md-dialog>
+  <v-row justify="center">
+    <v-dialog v-model="showDialog" persistent max-width="800px">
+      <v-card>
+        <v-card-title>
+          <span class="headline">Upload Files</span>
+        </v-card-title>
+        <v-card-text>
+          <v-container>
+            <v-row>
+              <v-file-input
+                chips
+                multiple
+                show-size
+                counter
+                loading
+                label="Select Files"
+                @change="onFileSelected"
+              ></v-file-input>
+            </v-row>
+          </v-container>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="blue darken-1" text @click="close">Close</v-btn>
+          <v-btn color="blue darken-1" text @click="upload">Upload</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+  </v-row>
 </template>
 
 <script lang="ts">
@@ -21,12 +39,12 @@ export default class Upload extends Vue {
   fileList!: File[];
   showDialog = false;
 
-  mounted() {
+  open() {
     this.showDialog = true;
   }
 
-  onDialogClosed() {
-    this.$emit("close");
+  close() {
+    this.showDialog = false;
   }
 
   onFileSelected(files: File[]) {
@@ -45,9 +63,10 @@ export default class Upload extends Vue {
         }
       })
       .then(res => {
-        this.showDialog = false
-        this.$emit("close");
-        this.$emit('upload-finish')
+        this.$toasted.success(res.data);
+        this.showDialog = false;
+        this.close();
+        this.$emit("upload-finish");
       });
   }
 }
