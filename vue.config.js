@@ -1,5 +1,6 @@
+const publicPath = process.env.NODE_ENV === 'production' ? 'http://www.shechuan.me/filemanager/' : './'
 module.exports = {
-  "publicPath": "./",
+  publicPath,
   "devServer": {
     "disableHostCheck": true,
     "proxy": "http://www.shechuan.me"
