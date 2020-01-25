@@ -15,6 +15,7 @@ Vue.use(Toasted, {
 
 new Vue({
   router,
+  // @ts-ignore
   vuetify,
   render: h => h(App)
 }).$mount("#app");
