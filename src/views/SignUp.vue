@@ -8,6 +8,9 @@
               <v-toolbar color="primary" dark flat>
                 <v-toolbar-title>Hello, Spider Man!</v-toolbar-title>
                 <v-spacer />
+                <router-link to="/signin">
+                  <v-icon>mdi-login</v-icon>
+                </router-link>
               </v-toolbar>
               <v-card-text>
                 <v-form>

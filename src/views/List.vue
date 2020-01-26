@@ -2,20 +2,12 @@
   <v-app id="inspire">
     <v-navigation-drawer v-model="drawer" app clipped>
       <v-list dense>
-        <v-list-item link>
+        <v-list-item link @click="logOut">
           <v-list-item-action>
-            <v-icon>mdi-view-dashboard</v-icon>
+            <v-icon>mdi-logout</v-icon>
           </v-list-item-action>
           <v-list-item-content>
-            <v-list-item-title>Dashboard</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-        <v-list-item link>
-          <v-list-item-action>
-            <v-icon>mdi-settings</v-icon>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title>Settings</v-list-item-title>
+            <v-list-item-title>Log Out</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
       </v-list>
@@ -24,6 +16,8 @@
     <v-app-bar app clipped-left>
       <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
       <v-toolbar-title>Application</v-toolbar-title>
+      <v-spacer />
+      <div class="username">{{username}}</div>
       <v-speed-dial
         v-model="fab"
         direction="bottom"
@@ -33,7 +27,7 @@
         <template v-slot:activator>
           <v-btn v-model="fab" color="blue darken-2" dark fab>
             <v-icon v-if="fab">mdi-close</v-icon>
-            <v-icon v-else>mdi-account-circle</v-icon>
+            <v-icon v-else>mdi-file</v-icon>
           </v-btn>
         </template>
         <v-btn fab dark small color="indigo" @click="openUpload">
@@ -100,6 +94,7 @@ interface FormatFile {
 })
 export default class List extends Vue {
   @Prop() source!: string;
+  username = Object.values(this.GLOBAL.getUser())[0].name;
   headers = [
     {
       text: "Name",
@@ -192,6 +187,18 @@ export default class List extends Vue {
     });
   }
 
+  logOut() {
+    this.$axios.post(`${host}/api/user/logout`).then(res => {
+      if (res.data.statusCode === 0) {
+      } else if (res.data.statusCode === 1) {
+        this.$toasted.error(res.data.msg);
+      } else if (res.data.statusCode === 2) {
+        this.$router.push({ name: res.data.data });
+        this.GLOBAL.clear();
+      }
+    });
+  }
+
   formatTime(time: number): string {
     return timestampToDate(time);
   }
@@ -219,6 +226,6 @@ export default class List extends Vue {
 }
 
 .v-speed-dial {
-  margin-left: auto;
+  margin-left: 20px;
 }
 </style>

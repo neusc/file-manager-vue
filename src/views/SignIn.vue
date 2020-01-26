@@ -8,6 +8,9 @@
               <v-toolbar color="primary" dark flat>
                 <v-toolbar-title>Welcome Back!</v-toolbar-title>
                 <v-spacer />
+                <router-link to="/signup">
+                  <v-icon>mdi-account-plus</v-icon>
+                </router-link>
               </v-toolbar>
               <v-card-text>
                 <v-form>
