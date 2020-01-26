@@ -8,7 +8,7 @@ Vue.use(Router);
 
 const router = new Router({
   mode: "history",
-  // base: "/filemanager",
+  base: process.env.NODE_ENV === "production" ? "/filemanager" : "/",
   routes: [
     {
       path: "/",
