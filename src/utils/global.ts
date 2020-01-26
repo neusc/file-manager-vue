@@ -1,10 +1,9 @@
-<script>
 let userInfo = {};
-function getUser(key) {
+function getUser(key?: string) {
   return key ? userInfo[key] : userInfo;
 }
 
-function setUser(key, data) {
+function setUser(key: string, data: object) {
   userInfo[key] = data;
 }
 
@@ -16,4 +15,3 @@ export default {
   setUser,
   clear
 };
-</script>

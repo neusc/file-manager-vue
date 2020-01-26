@@ -52,7 +52,7 @@ export default class Upload extends Vue {
   }
 
   upload() {
-    let formData = new FormData();
+    const formData = new FormData();
     Array.prototype.forEach.call(this.fileList, (file: File) => {
       formData.append("files", file);
     });
@@ -62,7 +62,7 @@ export default class Upload extends Vue {
           "Content-Type": "multipart/form-data"
         }
       })
-      .then(res => {
+      .then((res) => {
         this.$toasted.success(res.data);
         this.showDialog = false;
         this.close();

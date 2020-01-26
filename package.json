@@ -14,7 +14,7 @@
     "material-design-icons-iconfont": "^5.0.1",
     "vue": "^2.6.10",
     "vue-class-component": "^7.0.2",
-    "vue-property-decorator": "^8.1.0",
+    "vue-property-decorator": "^8.3.0",
     "vue-router": "^3.0.3",
     "vue-toasted": "^1.1.27",
     "vuetify": "^2.1.0",

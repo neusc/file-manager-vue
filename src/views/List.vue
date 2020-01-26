@@ -66,11 +66,13 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from "vue-property-decorator";
+// @ts-ignore
+import { Vue, Component, Prop, Ref } from "vue-property-decorator";
 import Upload from "@/components/upload.vue";
 import EditTool from "@/components/editTool.vue";
 import { timestampToDate } from "@/utils/timeFormat";
 import { host } from "@/config";
+import { AxiosResponse } from "axios";
 
 interface CustomFile {
   name: string;
@@ -94,8 +96,9 @@ interface FormatFile {
 })
 export default class List extends Vue {
   @Prop() source!: string;
-  //@ts-ignore
-  username = Object.values(this.GLOBAL.getUser())[0].name;
+  @Ref() upload!: Upload;
+  @Ref() tool!: EditTool;
+  username = (Object.values(this.$global.getUser()) as any[])[0].name;
   headers = [
     {
       text: "Name",
@@ -104,7 +107,7 @@ export default class List extends Vue {
       value: "name"
     },
     { text: "Size", value: "size" },
-    { text: "Modified Time", value: "modTime" }
+    { text: "Modified Time", value: "modTime" },
   ];
   fileList: FormatFile[] = [];
   selectedFiles: FormatFile[] = [];
@@ -132,14 +135,12 @@ export default class List extends Vue {
   }
 
   openUpload() {
-    //@ts-ignore
-    this.$refs.upload.open();
+    this.upload.open();
   }
 
   openEditTool() {
     this.showSelect = true;
-    //@ts-ignore
-    this.$refs.tool.open();
+    this.tool.open();
   }
 
   onUploadFinished() {
@@ -147,14 +148,11 @@ export default class List extends Vue {
   }
 
   getFileList() {
-    this.$axios.post(`${host}/api/file/list`).then(res => {
+    this.$axios.post(`${host}/api/file/list`).then((res: AxiosResponse) => {
       if (res.data.statusCode === 0) {
         this.fileList = this.handleData(res.data.data);
       } else if (res.data.statusCode === 1) {
-        this.$notify({
-          title: "tips",
-          message: res.data.msg
-        });
+        this.$toasted.error(res.data.msg);
       } else if (res.data.statusCode === 2) {
         this.$router.push({ name: res.data.data });
       }
@@ -172,31 +170,30 @@ export default class List extends Vue {
   }
 
   onDelete() {
-    let names = this.selectedFiles.map(file => file.name);
-    this.$axios.post(`${host}/api/file/delete`, { names }).then(res => {
-      if (res.data.statusCode === 0) {
-        this.$toasted.success(
-          `${names.length +
-            " " +
-            (names.length > 1 ? "files" : "file")} delete success!`
-        );
-        this.getFileList();
-        this.onSelectCancel();
-        // @ts-ignore
-        this.$refs.tool.close();
-      }
-    });
+    const names = this.selectedFiles.map((file) => file.name);
+    this.$axios
+      .post(`${host}/api/file/delete`, { names })
+      .then((res: AxiosResponse) => {
+        if (res.data.statusCode === 0) {
+          this.$toasted.success(
+            `${names.length +
+              " " +
+              (names.length > 1 ? "files" : "file")} delete success!`
+          );
+          this.getFileList();
+          this.onSelectCancel();
+          this.tool.close();
+        }
+      });
   }
 
   logOut() {
-    this.$axios.post(`${host}/api/user/logout`).then(res => {
-      if (res.data.statusCode === 0) {
-      } else if (res.data.statusCode === 1) {
+    this.$axios.post(`${host}/api/user/logout`).then((res: AxiosResponse) => {
+      if (res.data.statusCode === 1) {
         this.$toasted.error(res.data.msg);
       } else if (res.data.statusCode === 2) {
         this.$router.push({ name: res.data.data });
-        //@ts-ignore
-        this.GLOBAL.clear();
+        this.$global.clear();
       }
     });
   }

@@ -53,6 +53,7 @@
 import { Vue, Component } from "vue-property-decorator";
 import { timestampToDate } from "@/utils/timeFormat";
 import { host } from "@/config";
+import { AxiosResponse } from "axios";
 
 @Component
 export default class List extends Vue {
@@ -64,14 +65,15 @@ export default class List extends Vue {
     if (!this.formData.name || !this.formData.password) {
       return;
     }
-    this.$axios.post(`${host}/api/user/signin`, this.formData).then(res => {
-      if (res.data.statusCode === 0) {
-      } else if (res.data.statusCode === 1) {
-        this.$toasted.error(res.data.msg);
-      } else if (res.data.statusCode === 2) {
-        this.$router.push({ name: res.data.data });
-      }
-    });
+    this.$axios
+      .post(`${host}/api/user/signin`, this.formData)
+      .then((res: AxiosResponse) => {
+        if (res.data.statusCode === 1) {
+          this.$toasted.error(res.data.msg);
+        } else if (res.data.statusCode === 2) {
+          this.$router.push({ name: res.data.data });
+        }
+      });
   }
 }
 </script>
