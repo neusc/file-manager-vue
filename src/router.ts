@@ -8,6 +8,11 @@ export default new Router({
   base: "/filemanager",
   routes: [
     {
+      path: "/",
+      name: "list",
+      component: () => import(/* webpackChunkName: "list" */ "./views/List.vue")
+    },
+    {
       path: "/list",
       name: "list",
       component: () => import(/* webpackChunkName: "list" */ "./views/List.vue")
@@ -23,6 +28,6 @@ export default new Router({
       name: "signin",
       component: () =>
         import(/* webpackChunkName: "signin" */ "./views/SignIn.vue")
-    },
+    }
   ]
 });
