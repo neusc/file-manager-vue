@@ -94,6 +94,7 @@ interface FormatFile {
 })
 export default class List extends Vue {
   @Prop() source!: string;
+  //@ts-ignore
   username = Object.values(this.GLOBAL.getUser())[0].name;
   headers = [
     {
@@ -194,6 +195,7 @@ export default class List extends Vue {
         this.$toasted.error(res.data.msg);
       } else if (res.data.statusCode === 2) {
         this.$router.push({ name: res.data.data });
+        //@ts-ignore
         this.GLOBAL.clear();
       }
     });

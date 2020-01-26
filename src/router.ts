@@ -16,11 +16,6 @@ const router = new Router({
       component: () => import(/* webpackChunkName: "list" */ './views/List.vue')
     },
     {
-      path: "/list",
-      name: "list",
-      component: () => import(/* webpackChunkName: "list" */ "./views/List.vue")
-    },
-    {
       path: '/signup',
       name: 'signup',
       component: () =>
@@ -40,8 +35,8 @@ router.beforeEach((to, from, next) => {
   if (uid) {
     const user = Vue.prototype.GLOBAL.getUser(uid);
     if (user) {
-      if (to.path === '/signin') {
-        next('/');
+      if (to.name === 'signin') {
+        next({ name: 'list' });
       } else {
         next();
       }
@@ -52,23 +47,23 @@ router.beforeEach((to, from, next) => {
           const d = res.data;
           if (d.statusCode === 0 && d.data.uid && d.data.name) {
             Vue.prototype.GLOBAL.setUser(uid, d.data);
-            if (to.path === '/signin') {
-              next('/');
+            if (to.name === 'signin') {
+              next({ name: 'list' });
             } else {
               next();
             }
           } else {
-            next('/signin');
+            next({ name: 'signin' });
           }
         })
         .catch(e => {
-          next('/signin');
+          next({ name: 'signin' });
         });
     }
-  } else if (to.path === '/signin' || to.path === '/signup') {
+  } else if (to.name === 'signin' || to.name === 'signup') {
     next();
   } else {
-    next('/signin');
+    next({ name: 'signin' });
   }
 });
 
