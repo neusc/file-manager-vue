@@ -4,7 +4,6 @@ import router from "./router";
 import axios from "axios";
 import vuetify from "./plugins/vuetify";
 import Toasted from "vue-toasted";
-import "material-design-icons-iconfont/dist/material-design-icons.css";
 import global from "@/utils/global.ts";
 
 Vue.config.productionTip = false;

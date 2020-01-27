@@ -17,7 +17,7 @@
                   <v-text-field
                     label="Login"
                     name="login"
-                    prepend-icon="person"
+                    prepend-icon="mdi-account"
                     type="text"
                     v-model="formData.name"
                     clearable
@@ -29,7 +29,7 @@
                     label="Password"
                     name="password"
                     v-model="formData.password"
-                    prepend-icon="lock"
+                    prepend-icon="mdi-lock"
                     type="password"
                     clearable
                     required
