@@ -70,8 +70,13 @@
             v-model="selectedFiles"
             @input="onSelected"
           >
-            <template v-slot:item.size="{ item }">{{ item.size | formatSize }}</template>
-            <template v-slot:item.modTime="{ item }">{{ item.modTime | formatTime }}</template>
+            <template v-slot:item="{ item }">
+              <tr>
+                <td @click="previewFile(item.path)">{{ item.name }}</td>
+                <td>{{ item.size | formatSize }}</td>
+                <td>{{ item.modTime | formatTime }}</td>
+              </tr>
+            </template>
           </v-data-table>
         </v-card>
       </v-container>
@@ -171,8 +176,12 @@ export default class List extends Vue {
     this.tool.open();
   }
 
+  previewFile(path: string) {
+    window.open(path)
+  }
+
   switchTheme() {
-    this.$vuetify.theme.dark = !this.$vuetify.theme.dark
+    this.$vuetify.theme.dark = !this.$vuetify.theme.dark;
   }
 
   onUploadFinished() {
@@ -205,6 +214,10 @@ export default class List extends Vue {
           this.getFileList();
           this.onSelectCancel();
           this.tool.close();
+        } else if (res.data.statusCode === 1) {
+          this.$toasted.error(res.data.msg);
+        } else if (res.data.statusCode === 2) {
+          this.$router.push({ name: res.data.data });
         }
       });
   }
