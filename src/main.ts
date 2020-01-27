@@ -10,6 +10,7 @@ Vue.config.productionTip = false;
 axios.defaults.withCredentials = true;
 Vue.prototype.$axios = axios;
 Vue.prototype.$global = global;
+Vue.prototype.$vuetify = vuetify;
 Vue.use(Toasted, {
   duration: 3000
 });

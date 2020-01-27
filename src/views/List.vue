@@ -36,6 +36,9 @@
         <v-btn fab dark small color="red" @click="openEditTool">
           <v-icon>mdi-delete</v-icon>
         </v-btn>
+        <v-btn fab dark small color="green" @click="switchTheme">
+          <v-icon>mdi-theme-light-dark</v-icon>
+        </v-btn>
       </v-speed-dial>
     </v-app-bar>
 
@@ -166,6 +169,10 @@ export default class List extends Vue {
   openEditTool() {
     this.showSelect = true;
     this.tool.open();
+  }
+
+  switchTheme() {
+    this.$vuetify.theme.dark = !this.$vuetify.theme.dark
   }
 
   onUploadFinished() {
