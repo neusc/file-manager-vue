@@ -41,22 +41,35 @@
 
     <v-content>
       <v-container class="fill-height" fluid>
-        <v-data-table
-          loading
-          loading-text="Loading... Please wait"
-          :headers="headers"
-          :items="fileList"
-          :items-per-page="10"
-          class="elevation-1"
-          :show-select="showSelect"
-          :single-select="singleSelect"
-          item-key="name"
-          v-model="selectedFiles"
-          @input="onSelected"
-        ></v-data-table>
+        <v-card>
+          <v-card-title>
+            File Manager
+            <v-spacer></v-spacer>
+            <v-text-field
+              v-model="search"
+              append-icon="mdi-file-find"
+              label="Search"
+              single-line
+              hide-details
+            ></v-text-field>
+          </v-card-title>
+          <v-data-table
+            loading
+            loading-text="Loading... Please wait"
+            :headers="headers"
+            :items="fileList"
+            :items-per-page="10"
+            class="elevation-1"
+            :show-select="showSelect"
+            :single-select="singleSelect"
+            item-key="name"
+            :search="search"
+            v-model="selectedFiles"
+            @input="onSelected"
+          ></v-data-table>
+        </v-card>
       </v-container>
     </v-content>
-
     <v-footer app>
       <span>&copy; 2019</span>
     </v-footer>
@@ -107,8 +120,9 @@ export default class List extends Vue {
       value: "name"
     },
     { text: "Size", value: "size" },
-    { text: "Modified Time", value: "modTime" },
+    { text: "Modified Time", value: "modTime" }
   ];
+  search = "";
   fileList: FormatFile[] = [];
   selectedFiles: FormatFile[] = [];
   showSelect = false;
@@ -170,7 +184,7 @@ export default class List extends Vue {
   }
 
   onDelete() {
-    const names = this.selectedFiles.map((file) => file.name);
+    const names = this.selectedFiles.map(file => file.name);
     this.$axios
       .post(`${host}/api/file/delete`, { names })
       .then((res: AxiosResponse) => {
@@ -217,6 +231,14 @@ export default class List extends Vue {
 <style lang="stylus" scoped>
 .container {
   padding: 0;
+
+  &.fill-height {
+    align-items: flex-start;
+  }
+}
+
+.v-card {
+  width: 100%;
 }
 
 .v-data-table {
