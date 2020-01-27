@@ -73,9 +73,15 @@ export default class Upload extends Vue {
         }
       })
       .then((res) => {
-        this.$toasted.success(res.data);
-        this.close();
-        this.$emit("upload-finish");
+        if (res.data.statusCode === 0) {
+          this.$toasted.success(res.data.msg);
+          this.close();
+          this.$emit("upload-finish");
+        } else if (res.data.statusCode === 1) {
+          this.$toasted.error(res.data.msg);
+        } else if (res.data.statusCode === 2) {
+          this.$router.push({ name: res.data.data });
+        }
       });
   }
 }

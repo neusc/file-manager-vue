@@ -182,7 +182,7 @@ export default class List extends Vue {
   getFileList() {
     this.$axios.post(`${host}/api/file/list`).then((res: AxiosResponse) => {
       if (res.data.statusCode === 0) {
-        this.fileList = res.data.data;
+        this.fileList = res.data.data || [];
       } else if (res.data.statusCode === 1) {
         this.$toasted.error(res.data.msg);
       } else if (res.data.statusCode === 2) {
