@@ -131,7 +131,7 @@ export default class List extends Vue {
       value: "name"
     },
     { text: "Size", value: "size" },
-    { text: "Modified Time", value: "modTime" }
+    { text: "Modified Time", value: "modTime" },
   ];
   search = "";
   fileList: CustomFile[] = [];

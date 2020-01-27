@@ -16,6 +16,7 @@
                 loading
                 label="Select Files"
                 @change="onFileSelected"
+                v-if="uploadReady"
               ></v-file-input>
             </v-row>
           </v-container>
@@ -38,13 +39,22 @@ import { host } from "@/config";
 export default class Upload extends Vue {
   fileList!: File[];
   showDialog = false;
+  uploadReady = true;
 
   open() {
     this.showDialog = true;
   }
 
   close() {
+    this.clear();
     this.showDialog = false;
+  }
+
+  clear() {
+    this.uploadReady = false;
+    this.$nextTick(() => {
+      this.uploadReady = true;
+    });
   }
 
   onFileSelected(files: File[]) {
@@ -64,7 +74,6 @@ export default class Upload extends Vue {
       })
       .then((res) => {
         this.$toasted.success(res.data);
-        this.showDialog = false;
         this.close();
         this.$emit("upload-finish");
       });
