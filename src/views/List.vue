@@ -56,17 +56,20 @@
           <v-data-table
             loading
             loading-text="Loading... Please wait"
+            class="elevation-1"
+            item-key="name"
             :headers="headers"
             :items="fileList"
             :items-per-page="10"
-            class="elevation-1"
             :show-select="showSelect"
             :single-select="singleSelect"
-            item-key="name"
             :search="search"
             v-model="selectedFiles"
             @input="onSelected"
-          ></v-data-table>
+          >
+            <template v-slot:item.size="{ item }">{{ item.size | formatSize }}</template>
+            <template v-slot:item.modTime="{ item }">{{ item.modTime | formatTime }}</template>
+          </v-data-table>
         </v-card>
       </v-container>
     </v-content>
@@ -94,14 +97,22 @@ interface CustomFile {
   modTime: number;
 }
 
-interface FormatFile {
-  name: string;
-  path: string;
-  size: string;
-  modTime: string;
-}
-
 @Component({
+  filters: {
+    formatTime(time: number): string {
+      return timestampToDate(time);
+    },
+    formatSize(size: number): string {
+      const kSize = size / 1000;
+      let mSize = "";
+      if (kSize > 1000) {
+        mSize = (kSize / 1000).toFixed(1);
+        return `${mSize}M`;
+      } else {
+        return `${kSize.toFixed(1)}K`;
+      }
+    }
+  },
   components: {
     Upload,
     EditTool
@@ -123,8 +134,8 @@ export default class List extends Vue {
     { text: "Modified Time", value: "modTime" }
   ];
   search = "";
-  fileList: FormatFile[] = [];
-  selectedFiles: FormatFile[] = [];
+  fileList: CustomFile[] = [];
+  selectedFiles: CustomFile[] = [];
   showSelect = false;
   showUpload = false;
   drawer = null;
@@ -139,7 +150,7 @@ export default class List extends Vue {
     this.getFileList();
   }
 
-  onSelected(items: FormatFile[]) {
+  onSelected(items: CustomFile[]) {
     this.selectedFiles = items;
   }
 
@@ -164,7 +175,7 @@ export default class List extends Vue {
   getFileList() {
     this.$axios.post(`${host}/api/file/list`).then((res: AxiosResponse) => {
       if (res.data.statusCode === 0) {
-        this.fileList = this.handleData(res.data.data);
+        this.fileList = res.data.data;
       } else if (res.data.statusCode === 1) {
         this.$toasted.error(res.data.msg);
       } else if (res.data.statusCode === 2) {
@@ -173,18 +184,8 @@ export default class List extends Vue {
     });
   }
 
-  handleData(data: CustomFile[]): FormatFile[] {
-    return data.map((d: CustomFile) => {
-      return {
-        ...d,
-        size: this.formatSize(d.size),
-        modTime: this.formatTime(d.modTime)
-      };
-    });
-  }
-
   onDelete() {
-    const names = this.selectedFiles.map(file => file.name);
+    const names = this.selectedFiles.map((file: CustomFile) => file.name);
     this.$axios
       .post(`${host}/api/file/delete`, { names })
       .then((res: AxiosResponse) => {
@@ -210,20 +211,6 @@ export default class List extends Vue {
         this.$global.clear();
       }
     });
-  }
-
-  formatTime(time: number): string {
-    return timestampToDate(time);
-  }
-  formatSize(size: number): string {
-    const kSize = size / 1000;
-    let mSize = "";
-    if (kSize > 1000) {
-      mSize = (kSize / 1000).toFixed(1);
-      return `${mSize}M`;
-    } else {
-      return `${kSize.toFixed(1)}K`;
-    }
   }
 }
 </script>
