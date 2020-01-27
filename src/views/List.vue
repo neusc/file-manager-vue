@@ -70,13 +70,9 @@
             v-model="selectedFiles"
             @input="onSelected"
           >
-            <template v-slot:item="{ item }">
-              <tr>
-                <td @click="previewFile(item.path)">{{ item.name }}</td>
-                <td>{{ item.size | formatSize }}</td>
-                <td>{{ item.modTime | formatTime }}</td>
-              </tr>
-            </template>
+            <template v-slot:item.name="{ item }"><span @click="previewFile(item.path)">{{ item.name }}</span></template>
+            <template v-slot:item.size="{ item }">{{ item.size | formatSize }}</template>
+            <template v-slot:item.modTime="{ item }">{{ item.modTime | formatTime }}</template>
           </v-data-table>
         </v-card>
       </v-container>
