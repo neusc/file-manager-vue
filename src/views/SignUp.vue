@@ -22,7 +22,7 @@
                     v-model="formData.name"
                     clearable
                     required
-                    :rules="[() => !!formData.name || 'This field is required']"
+                    :rules="[rules.required, rules.validName, rules.min(3), rules.max(8)]"
                   />
                   <v-text-field
                     id="password"
@@ -33,7 +33,7 @@
                     type="password"
                     clearable
                     required
-                    :rules="[() => !!formData.password || 'This field is required']"
+                    :rules="[rules.required, rules.min(6)]"
                   />
                   <v-text-field
                     id="repassword"
@@ -44,7 +44,7 @@
                     type="password"
                     clearable
                     required
-                    :rules="[() => !!formData.repassword || 'This field is required']"
+                    :rules="[rules.required, rules.equal(formData.password)]"
                   />
                 </v-form>
               </v-card-text>
@@ -66,14 +66,35 @@ import { timestampToDate } from "@/utils/timeFormat";
 import { host } from "@/config";
 import { AxiosResponse } from "axios";
 
+interface FormData {
+  name: string;
+  password: string;
+  repassword: string;
+}
+
 @Component
 export default class List extends Vue {
-  formData = {
+  formData: FormData = {
     name: "",
     password: "",
     repassword: ""
   };
+  rules = {
+    required: (value: string) => !!value.trim() || "Required.",
+    min: (n: number) => (v: string) =>
+      v.trim().length >= n || `Min ${n} characters`,
+    max: (n: number) => (v: string) =>
+      v.trim().length <= n || `Max ${n} characters`,
+    equal: (value: string) => (v: string) =>
+      v === value || `not equal to password`,
+    validName: (value: string) =>
+      /^[A-Za-z0-9_]+$/.test(value) ||
+      "only use letters、 numbers and underline"
+  };
   signUp() {
+    if (!this.validate(this.formData)) {
+      return;
+    }
     this.$axios
       .post(`${host}/api/user/signup`, this.formData)
       .then((res: AxiosResponse) => {
@@ -83,6 +104,19 @@ export default class List extends Vue {
           this.$router.push({ name: res.data.data });
         }
       });
+  }
+  validate(form: FormData) {
+    let { name, password, repassword } = form;
+    if (!/^[A-Za-z0-9_]{3,8}$/.test(name)) {
+      return false;
+    } else if (
+      password.trim() === "" ||
+      password.length < 6 ||
+      password !== repassword
+    ) {
+      return false;
+    }
+    return true;
   }
 }
 </script>
