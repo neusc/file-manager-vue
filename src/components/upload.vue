@@ -40,7 +40,7 @@ import { AxiosResponse } from "axios";
 
 @Component
 export default class Upload extends Vue {
-  fileList!: File[];
+  fileList: File[] = [];
   showDialog = false;
   uploadReady = true;
   percent = 0;
