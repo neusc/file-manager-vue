@@ -36,7 +36,7 @@
 <script lang="ts">
 import { Vue, Component, Prop } from "vue-property-decorator";
 import { host } from "@/config";
-import { AxiosResponse } from 'axios';
+import { AxiosResponse } from "axios";
 
 @Component
 export default class Upload extends Vue {
@@ -87,6 +87,9 @@ export default class Upload extends Vue {
   }
 
   upload() {
+    if (!this.fileList.length) {
+      return;
+    }
     const formData = new FormData();
     Array.prototype.forEach.call(this.fileList, (file: File) => {
       formData.append("files", file);
@@ -116,7 +119,9 @@ export default class Upload extends Vue {
           this.$router.push({ name: res.data.data });
         }
       })
-      .catch();
+      .catch((e: Error) => {
+        this.$toasted.error(e.message);
+      });
   }
 }
 </script>
