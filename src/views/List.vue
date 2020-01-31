@@ -30,15 +30,30 @@
             <v-icon v-else>mdi-file</v-icon>
           </v-btn>
         </template>
-        <v-btn fab dark small color="indigo" @click="openUpload">
-          <v-icon>mdi-plus</v-icon>
-        </v-btn>
-        <v-btn fab dark small color="red" @click="openEditTool">
-          <v-icon>mdi-delete</v-icon>
-        </v-btn>
-        <v-btn fab dark small color="green" @click="switchTheme">
-          <v-icon>mdi-theme-light-dark</v-icon>
-        </v-btn>
+        <v-tooltip left>
+          <template v-slot:activator="{ on }">
+            <v-btn fab dark small color="indigo" v-on="on" @click="openUpload">
+              <v-icon>mdi-plus</v-icon>
+            </v-btn>
+          </template>
+          <span>upload</span>
+        </v-tooltip>
+        <v-tooltip left>
+          <template v-slot:activator="{ on }">
+            <v-btn fab dark small color="red" v-on="on" @click="openEditTool">
+              <v-icon>mdi-delete</v-icon>
+            </v-btn>
+          </template>
+          <span>delete</span>
+        </v-tooltip>
+        <v-tooltip left>
+          <template v-slot:activator="{ on }">
+            <v-btn fab dark small color="green" v-on="on" @click="switchTheme">
+              <v-icon>mdi-theme-light-dark</v-icon>
+            </v-btn>
+          </template>
+          <span>switch theme</span>
+        </v-tooltip>
       </v-speed-dial>
     </v-app-bar>
 
@@ -70,7 +85,9 @@
             v-model="selectedFiles"
             @input="onSelected"
           >
-            <template v-slot:item.name="{ item }"><span @click="previewFile(item.path)">{{ item.name }}</span></template>
+            <template v-slot:item.name="{ item }">
+              <span @click="previewFile(item.path)">{{ item.name }}</span>
+            </template>
             <template v-slot:item.size="{ item }">{{ item.size | formatSize }}</template>
             <template v-slot:item.modTime="{ item }">{{ item.modTime | formatTime }}</template>
           </v-data-table>
@@ -173,7 +190,7 @@ export default class List extends Vue {
   }
 
   previewFile(path: string) {
-    window.open(path)
+    window.open(path);
   }
 
   switchTheme() {

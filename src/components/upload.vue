@@ -36,15 +36,16 @@
 <script lang="ts">
 import { Vue, Component, Prop } from "vue-property-decorator";
 import { host } from "@/config";
+import { AxiosResponse } from 'axios';
 
 @Component
 export default class Upload extends Vue {
   fileList!: File[];
   showDialog = false;
   uploadReady = true;
-  percent = 0
-  source = null
-  uploadFinished = false
+  percent = 0;
+  source = null;
+  uploadFinished = false;
 
   open() {
     this.showDialog = true;
@@ -52,12 +53,12 @@ export default class Upload extends Vue {
 
   close() {
     this.clear();
-    if(!this.uploadFinished) {
+    if (!this.uploadFinished) {
       this.cancel();
     }
     this.showDialog = false;
     this.percent = 0;
-    this.uploadFinished = false
+    this.uploadFinished = false;
   }
 
   clear() {
@@ -73,14 +74,16 @@ export default class Upload extends Vue {
 
   onFileClear() {
     this.percent = 0;
-    if(!this.uploadFinished) {
+    if (!this.uploadFinished) {
       this.cancel();
     }
   }
 
   cancel() {
-    // @ts-ignore
-    this.source && this.source.cancel('Operation canceled by the user.')
+    if (this.source) {
+      // @ts-ignore
+      this.source && this.source.cancel("Operation canceled by the user.");
+    }
   }
 
   upload() {
@@ -90,20 +93,20 @@ export default class Upload extends Vue {
     });
     // @ts-ignore
     const CancelToken = this.$axios.CancelToken;
-    const source = this.source = CancelToken.source();
+    const source = (this.source = CancelToken.source());
     this.$axios
       .post(`${host}/api/file/upload`, formData, {
         headers: {
           "Content-Type": "multipart/form-data"
         },
         onUploadProgress: (progressEvent: ProgressEvent) => {
-          this.percent = (progressEvent.loaded / progressEvent.total) * 100 
+          this.percent = (progressEvent.loaded / progressEvent.total) * 100;
         },
         cancelToken: source.token
       })
-      .then((res) => {
+      .then((res: AxiosResponse) => {
         if (res.data.statusCode === 0) {
-          this.uploadFinished = true
+          this.uploadFinished = true;
           this.$toasted.success(res.data.msg);
           this.close();
           this.$emit("upload-finish");
@@ -112,9 +115,8 @@ export default class Upload extends Vue {
         } else if (res.data.statusCode === 2) {
           this.$router.push({ name: res.data.data });
         }
-      }).catch((e: Error) => {
-        console.log(e.message)
-      });
+      })
+      .catch();
   }
 }
 </script>
@@ -126,6 +128,6 @@ export default class Upload extends Vue {
 }
 
 .v-progress-linear {
-  margin-top 30px
+  margin-top: 30px;
 }
 </style>

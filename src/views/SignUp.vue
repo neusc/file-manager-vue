@@ -106,7 +106,7 @@ export default class List extends Vue {
       });
   }
   validate(form: FormData) {
-    let { name, password, repassword } = form;
+    const { name, password, repassword } = form;
     if (!/^[A-Za-z0-9_]{3,8}$/.test(name)) {
       return false;
     } else if (
