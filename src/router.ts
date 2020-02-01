@@ -31,10 +31,10 @@ const router = new Router({
 });
 
 router.beforeEach((to, from, next) => {
-  const uid = Cookies.get("uid");
-  if (uid) {
-    const user = Vue.prototype.$global.getUser(uid);
-    if (user) {
+  const sessionid = Cookies.get("filemanager");
+  if (sessionid) {
+    const user = Vue.prototype.$global.getUser(sessionid);
+    if (user && user.name) {
       if (to.name === "signin") {
         next({ name: "list" });
       } else {
@@ -42,11 +42,11 @@ router.beforeEach((to, from, next) => {
       }
     } else {
       axios
-        .post(`${host}/api/user/getUserInfo`, { uid })
+        .post(`${host}/api/user/getUserInfo`)
         .then((res: AxiosResponse) => {
           const d = res.data;
-          if (d.statusCode === 0 && d.data.uid && d.data.name) {
-            Vue.prototype.$global.setUser(uid, d.data);
+          if (d.statusCode === 0 && d.data.sessionid && d.data.name) {
+            Vue.prototype.$global.setUser(sessionid, d.data);
             if (to.name === "signin") {
               next({ name: "list" });
             } else {

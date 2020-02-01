@@ -66,6 +66,7 @@ export default class Upload extends Vue {
     this.$nextTick(() => {
       this.uploadReady = true;
     });
+    this.fileList = [];
   }
 
   onFileSelected(files: File[]) {
@@ -82,7 +83,7 @@ export default class Upload extends Vue {
   cancel() {
     if (this.source) {
       // @ts-ignore
-      this.source && this.source.cancel("Operation canceled by the user.");
+      this.source.cancel("Operation canceled by the user.");
     }
   }
 
